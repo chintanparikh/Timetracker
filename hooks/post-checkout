@@ -1,0 +1,11 @@
+#!/bin/sh
+
+export branch_name=$(git name-rev $2 --name-only)
+export branch_switch=$3
+export status=$(timetracker status bool)
+if [ "$3" -eq 1 ]; then
+	if [ "$status" -eq 1 ]; then
+		timetracker end
+	fi
+	timetracker start $branch_name
+fi
