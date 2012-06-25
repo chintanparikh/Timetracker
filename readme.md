@@ -35,14 +35,14 @@ timetracker <options>
 ```
 Possible ```<options>``` are:
 
-    ```  start [PROJECT NAME] - starts/continues a project with PROJECT NAME ```
-    ```  end - stops work on the current project ```
-    ```  break - pauses work on the current project (time not recorded until timetracker back is run) ```
-    ```  back - resumes work on the current project ```
-    ```  status - gives you the project name and time you have been working on a project ```
-    ```  get - gives you project names and time you have been working on all projects ```
-    ```  clear - clears the log of all projects and times. WARNING: This cannot be undone ```
-    ```  finish - combination of timetracker status && timetracker get && timetracker finish ```
+```  start [PROJECT NAME] - starts/continues a project with PROJECT NAME ```
+```  end - stops work on the current project ```
+```  break - pauses work on the current project (time not recorded until timetracker back is run) ```
+```  back - resumes work on the current project ```
+```  status - gives you the project name and time you have been working on a project ```
+```  get - gives you project names and time you have been working on all projects ```
+```  clear - clears the log of all projects and times. WARNING: This cannot be undone ```
+```  finish - combination of timetracker status && timetracker get && timetracker finish ```
 
 ##Todo List (feel free to fork and help out!)
 * Make installation easier - perhaps a script/utility to automatically copy the required files?
