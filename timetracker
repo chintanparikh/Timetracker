@@ -2,20 +2,6 @@
 
 require 'time'
 require 'yaml'
-# time start project_name
-# time status
-# time end
-# time break
-# time back
-# time get
-# time clear
-# time finish => time end && time clear
-
-# project_name: 1568
-# other_project_name: 894
-
-# git hooks:
-  # git checkout (-b) 'branch_name' => time end && time start 'branch_name'
 
 time_file = 'time_log.yml'
 time_temp_file = 'time_temp.yml'
