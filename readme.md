@@ -14,7 +14,7 @@ Next, copy timetracker into a folder in your PATH, typically /usr/bin
 ```bash
 cp timetracker /usr/bin/
 ```
-Lastly, copy ```hooks/post-checkout``` into ```.git/hooks``` in any git repository you want to use timetracker with
+Lastly, copy ```hooks/post-checkout``` into ```.git/hooks``` in any git repository you want to use timetracker with, and ```chmod +x``` it
 
 For example, if your git repository was located at ```~/Gitrepo```,:
 ```bash
@@ -23,6 +23,7 @@ git clone git@github.com:chintanparikh/Timetracker.git
 cd Timetracker
 cp timetracker /usr/bin/
 cp hooks/post-checkout ~/Gitrepo/.git/hooks/
+chmod +x ~/Gitrepo/.git/hooks/post-checkout
 ```
 
 ##Usage
