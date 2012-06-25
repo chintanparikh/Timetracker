@@ -34,6 +34,7 @@ It supports the following:
 timetracker <options>
 ```
 Possible ```<options>``` are:
+
     ```  start [PROJECT NAME] - starts/continues a project with PROJECT NAME ```
     ```  end - stops work on the current project ```
     ```  break - pauses work on the current project (time not recorded until timetracker back is run) ```
