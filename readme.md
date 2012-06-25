@@ -12,9 +12,18 @@ cd Timetracker
 ```
 Next, copy timetracker into a folder in your PATH, typically /usr/bin
 ```bash
-cp timetracker /usr/bin
+cp timetracker /usr/bin/
 ```
-Lastly, copy hooks/post-checkout into any .git/hooks in any git repository you want to use timetracker with
+Lastly, copy ```hooks/post-checkout``` into ```.git/hooks``` in any git repository you want to use timetracker with
+
+For example, if your git repository was located at ```~/Gitrepo```,:
+```bash
+cd ~
+git clone git@github.com:chintanparikh/Timetracker.git
+cd Timetracker
+cp timetracker /usr/bin/
+cp hooks/post-checkout ~/Gitrepo/.git/hooks/
+```
 
 ##Usage
 Most usage is automated with checkouts - whenever you checkout a branch, timetracker with automatically detect that you're working on a new branch/task.
