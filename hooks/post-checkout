@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export branch_name=$(git name-rev $2 --name-only)
+export branch_name=$(git branch | grep "*" | sed "s/* //")
 export branch_switch=$3
 export status=$(timetracker status bool)
 if [ "$3" -eq 1 ]; then
