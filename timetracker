@@ -3,8 +3,8 @@
 require 'time'
 require 'yaml'
 
-time_file = 'time_log.yml'
-time_temp_file = 'time_temp.yml'
+time_file = "#{ENV['HOME']}/.timetracker/time_log.yml"
+time_temp_file = "#{ENV['HOME']}/.timetracker/time_temp.yml"
 
 def get_previous_time f
   f['Time']
