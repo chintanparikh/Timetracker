@@ -48,6 +48,7 @@ end
 
 case ARGV[0]
   when "start"
+    ARGV[1] = `git branch | grep "*" | sed "s/* //"` if ARGV[1].nil?
     unless File.size? time_temp_file
       store_temp_info(time_temp_file, ARGV[1], Time.now)
       puts "Working on: #{ARGV[1]}"
