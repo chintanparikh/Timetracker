@@ -3,145 +3,81 @@
 require 'time'
 require 'yaml'
 
-time_file = "#{ENV['HOME']}/.timetracker/time_log.yml"
-time_temp_file = "#{ENV['HOME']}/.timetracker/time_temp.yml"
+$LOG_FILE = "#{ENV['HOME']}/.timetracker/time_log.yml"
+$TEMP_FILE = "#{ENV['HOME']}/.timetracker/time_temp.yml"
 
-def get_previous_time f
-  f['Time']
+# Conditional functions
+def project_started?
+  # File.size? returns nil if the file is empty/has size 0
+  File.size? TEMP_FILE
 end
 
-def get_project f
-  f['Current Project']
-end
-
-def store_temp_info(temp_file, current_project, time)
-  file = File.open(temp_file, 'w')
+# Temp file functions
+def write_temp_info(project_name, time)
+  file = File.open($TEMP_FILE)
   file.write "Current Project: #{current_project}\n"
   file.write "Time: #{time}"
 end
 
-def get_temp_info(temp_file, current_time)
-  file = YAML.load_file(temp_file)
-  previous_time = get_previous_time(file)
-  current_time = current_time
-
+def get_temp_info
+  file = YAML.load_file($TEMP_FILE)
   temp_info = Hash.new
-  temp_info[:time_difference] = current_time - previous_time
+  temp_info[:time_difference] = current_time - previous_time(file)
   temp_info[:project] = get_project(file)
-  temp_info
+  temp_info  
 end
 
-def update_time_log(log_file, project, time_difference)
-  time_log = File.size?(log_file) ? YAML.load_file(log_file) : Hash.new
-  total_time = time_log.has_key?(project) ? time_log[project] : 0
-  time_log[project] = total_time + time_difference
-  time_log_file = File.open(log_file, 'w') do |file|
-    YAML.dump(time_log, file)
-  end
+# Misc helper functions
+def current_time
+  Time.now
 end
 
-def clear_file(file)
-  File.open(file, 'w') do |f|
-    f.write('')
-  end
+def previous_time(file)
+  file['Time']
 end
+
+def get_project(file)
+  file['Current Project']
+end
+
+info = get_temp_info
 
 case ARGV[0]
   when "start"
-    ARGV[1] = `git branch | grep "*" | sed "s/* //"` if ARGV[1].nil?
-    unless File.size? time_temp_file
-      store_temp_info(time_temp_file, ARGV[1], Time.now)
-      puts "Working on: #{ARGV[1]}"
+    # timetracker start <project_name>
+    if project_started?
+      puts "You are already working on #{info[:project_name]}. Please end that first."
     else
-      info = get_temp_info(time_temp_file, Time.now)
-      puts "You are already working on #{info[:project]}. Please end that first"
+      project_name = ARGV["1"] || `git branch | grep "*" | sed "s/* //"`
+      write_temp_info(project_name, Time.now)
+      puts "Working on #{project_name}"
     end
+
+  when "add"
+    # timetracker add <hours> <project_name>
+    # if <project_name> is blank, it will use the current project, or error
 
   when "end"
-    if File.size? time_temp_file
-      info = get_temp_info(time_temp_file, Time.now)
-      update_time_log(time_file, info[:project], info[:time_difference])
-      clear_file time_temp_file
-      puts "Worked on #{info[:project]} for #{info[:time_difference]/3600} hours"
-    else
-      puts "You need to start something first!"
-    end
+    # timetracker end
+    # ends the current project
 
   when "break"
-    if File.size? time_temp_file
-      info = get_temp_info(time_temp_file, Time.now)
-      update_time_log(time_file, info[:project], info[:time_difference])
-      store_temp_info(time_temp_file, info[:project], Time.now)
-      puts "Hurry back!"
-    else
-      puts "You don't have a project started to take a break from"
-    end
+    # timetracker break
+    # allows you to take a break from your current project (eg, to get a coffee, etc)
 
   when "back"
-    info = get_temp_info(time_temp_file, Time.now)
-    puts "Welcome back. You are working on #{info[:project]}"
-    store_temp_info(time_temp_file, info[:project], Time.now)
+    # timetracker back
+    # tells timetracker that your break has finished
 
   when "status"
-    if File.size? time_temp_file
-      if ARGV[1] == 'bool'
-        puts '1'
-      else
-        info = get_temp_info(time_temp_file, Time.now)
-        puts "You have been working on #{info[:project]} for #{info[:time_difference]/3600} hours"
-      end
-    else
-      if ARGV[1] == 'bool'
-        puts '0'
-      else
-        puts "You are not working on anything at the moment"
-      end
-    end
+    # timetracker status
+    # outputs how long you have been working on the current project
 
   when "get"
-    if File.size? time_file
-      projects = YAML.load_file(time_file)
-      projects.each do |project, time|
-        puts "You have worked on #{project} for #{time/3600} hours \n"
-      end
-    else
-      puts "You have not worked on anything so far"
-    end
 
   when "clear"
-    clear_file time_file
-    puts 'Cleared log'
 
   when "finish"
-    if File.size? time_temp_file
-      info = get_temp_info(time_temp_file, Time.now)
-      update_time_log(time_file, info[:project], info[:time_difference])
-      clear_file time_temp_file
-      puts "Worked on #{info[:project]} for #{info[:time_difference]/3600} hours \n"
-    end
-    puts "Log: \n"
-    if File.size? time_file
-      projects = YAML.load_file(time_file)
-      projects.each do |project, time|
-        puts "You have worked on #{project} for #{time/3600} hours \n"
-      end
-    else
-      puts "You have not worked on anything so far \n"
-    end
-    clear_file time_file
-    puts 'Cleared log'
 
   when "help"
-    puts "timetracker [OPTIONS] \n"
-    puts "Possible [OPTIONS] are: \n"
-    puts "  start [PROJECT NAME] - starts/continues a project with PROJECT NAME\n"
-    puts "  end - stops work on the current project\n"
-    puts "  break - pauses work on the current project (time not recorded until timetracker back is run)\n"
-    puts "  back - resumes work on the current project\n"
-    puts "  status - gives you the project name and time you have been working on a project\n"
-    puts "  get - gives you project names and time you have been working on all projects\n"
-    puts "  clear - clears the log of all projects and times. WARNING: This cannot be undone\n"
-    puts "  finish - combination of timetracker status && timetracker get && timetracker finish\n"
-  else
-    puts "Sorry, command not recognized. Please try again"
 end
