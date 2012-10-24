@@ -2,6 +2,7 @@
 
 require 'time'
 require 'yaml'
+require 'debugger'
 
 $LOG_FILE = "#{ENV['HOME']}/.timetracker/time_log.yml"
 $TEMP_FILE = "#{ENV['HOME']}/.timetracker/time_temp.yml"
@@ -9,13 +10,17 @@ $TEMP_FILE = "#{ENV['HOME']}/.timetracker/time_temp.yml"
 # Conditional functions
 def project_started?
   # File.size? returns nil if the file is empty/has size 0
-  File.size? TEMP_FILE
+  if File.size?($TEMP_FILE) == nil
+    return false
+  else
+    return File.size?($TEMP_FILE)
+  end
 end
 
 # Temp file functions
 def write_temp_info(project_name, time)
-  file = File.open($TEMP_FILE)
-  file.write "Current Project: #{current_project}\n"
+  file = File.open($TEMP_FILE, 'w')
+  file.write "Current Project: #{project_name}\n"
   file.write "Time: #{time}"
 end
 
@@ -24,7 +29,7 @@ def get_temp_info
   temp_info = Hash.new
   temp_info[:time_difference] = current_time - previous_time(file)
   temp_info[:project] = get_project(file)
-  temp_info  
+  temp_info
 end
 
 # Misc helper functions
@@ -40,15 +45,21 @@ def get_project(file)
   file['Current Project']
 end
 
-info = get_temp_info
+def get_current_branch
+  `git branch | grep "*" | sed "s/* //"`
+end
+
+if project_started?
+  temp_info = get_temp_info
+end
 
 case ARGV[0]
   when "start"
     # timetracker start <project_name>
     if project_started?
-      puts "You are already working on #{info[:project_name]}. Please end that first."
+      puts "You are already working on #{temp_info[:project]}. Please end that first."
     else
-      project_name = ARGV["1"] || `git branch | grep "*" | sed "s/* //"`
+      project_name = ARGV[1] || get_current_branch
       write_temp_info(project_name, Time.now)
       puts "Working on #{project_name}"
     end
@@ -56,6 +67,13 @@ case ARGV[0]
   when "add"
     # timetracker add <hours> <project_name>
     # if <project_name> is blank, it will use the current project, or error
+    project_name = ARGV[2] || temp_info[:project]
+    if project_name.nil?
+      puts "Please start a project or specify a project name"
+    else
+      # Code to add time here
+    end
+
 
   when "end"
     # timetracker end
@@ -73,11 +91,21 @@ case ARGV[0]
     # timetracker status
     # outputs how long you have been working on the current project
 
-  when "get"
+  when "log"
+    # timetracker log
+    # a log of the total time you have spent on each project
 
   when "clear"
+    # timetracker clear
+    # clears the log file
 
   when "finish"
+    # timetracker finish
+    # finishes your currently started task
 
   when "help"
+    # timetracker help
+    # displays timetracker documentation
+  else
+    # Do something similiar to timetracker help here
 end
